@@ -16,14 +16,13 @@ const Hero = () => {
 
   const totalVideos = 4;
 
-  const nextVideoRef = useRef<HTMLVideoElement>(null);
-  const currentVideoRef = useRef<HTMLVideoElement>(null);
+  const nextVideoRef = useRef<HTMLVideoElement>(null); // For the mini-preview
+  const transitionalVideoRef = useRef<HTMLVideoElement>(null); // The "zooming" layer
 
   const upcomingVideoIndex = (currentIndex % totalVideos) + 1;
 
   const handleVideoLoad = () => {
     setLoadedVideos((prev) => prev + 1);
-    // console.log("loaded videos: ", loadedVideos);
   };
 
   useEffect(() => {
@@ -35,9 +34,9 @@ const Hero = () => {
   useGSAP(
     () => {
       if (hasClicked) {
-        gsap.set("#current-video", { visibility: "visible" });
+        gsap.set("#transitional-video", { visibility: "visible" });
 
-        gsap.to("#current-video", {
+        gsap.to("#transitional-video", {
           transformOrigin: "center center",
           scale: 1,
           width: "100%",
@@ -45,7 +44,7 @@ const Hero = () => {
           duration: 1,
           ease: "power1.inOut",
           onStart: () => {
-            nextVideoRef.current?.play();
+            transitionalVideoRef.current?.play();
           },
         });
 
@@ -80,9 +79,17 @@ const Hero = () => {
   }, []);
 
   const handleMiniVidClick = () => {
-    setHasClicked(true);
-    setCurrentIndex(upcomingVideoIndex);
-  };
+  setHasClicked(true);
+
+  // Unlocking the transitional video immediately for mobile browsers
+  if (transitionalVideoRef.current) {
+    transitionalVideoRef.current.play().catch((err) => {
+      console.warn("Mobile autoplay was prevented:", err);
+    });
+  }
+
+  setCurrentIndex(upcomingVideoIndex);
+};
 
   const getVideoSrc = (index: number) => `/videos/hero-${index}.mp4`;
 
@@ -113,6 +120,7 @@ const Hero = () => {
                 src={getVideoSrc(upcomingVideoIndex)}
                 loop
                 muted
+                autoPlay
                 preload="auto"
                 playsInline
                 onLoadedData={handleVideoLoad}  
@@ -121,26 +129,34 @@ const Hero = () => {
               />
             </div>
           </div>
-          <video
-            ref={currentVideoRef}
-            src={getVideoSrc(currentIndex)}
-            loop
-            muted
-            preload="auto"
-            playsInline
-            id="current-video"
-            className="absolute-center invisible absolute z-20 size-64 object-cover object-center"
-          />
-          <video
-            src={getVideoSrc(currentIndex)}
-            autoPlay
-            loop
-            muted
-            // preload="auto"
-            onLoadedData={handleVideoLoad}
-            playsInline
-            className="absolute left-0 top-0 size-full object-cover object-center"
-          />
+{Array.from({ length: totalVideos }).map((_, i) => {
+      const index = i + 1;
+      return (
+        <video
+          key={index}
+          src={getVideoSrc(index)}
+          loop
+          muted
+          onLoadedData={handleVideoLoad}
+          playsInline
+          className={`absolute left-0 top-0 size-full object-cover transition-none ${
+            index === currentIndex ? "opacity-100 z-10" : "opacity-0 z-0"
+          }`}
+          autoPlay={index === currentIndex}
+        />
+      );
+    })}
+
+    {/* LAYER 2: THE TRANSITIONAL VIDEO (The Zooming Portal) */}
+    <video
+      ref={transitionalVideoRef}
+      src={getVideoSrc(currentIndex)} // Uses the NEW currentIndex
+      loop
+      muted
+      playsInline
+      id="transitional-video"
+      className="absolute-center invisible absolute z-20 size-64 object-cover object-center"
+    />
         </div>
 
         <h1 className="special-font hero-heading absolute bottom-5 right-5 z-40 text-blue-75">
