@@ -21,34 +21,16 @@ const Hero = () => {
 
   const upcomingVideoIndex = (currentIndex % totalVideos) + 1;
 
-  useEffect(() => {
-    const videoIndices = [1, 2, 3, 4];
-    let loadedCount = 0;
-
-    const preloadVideo = async (index: number) => {
-      try {
-        const response = await fetch(getVideoSrc(index));
-        if (!response.ok) throw new Error("Failed to fetch");
-
-        const blob = await response.blob();
-
-        loadedCount++;
-        setLoadedVideos(loadedCount);
-      } catch (error) {
-        console.error(`Error loading video ${index}:`, error);
-        loadedCount++;
-        setLoadedVideos(loadedCount);
-      }
-    };
-
-    videoIndices.forEach((index) => preloadVideo(index));
-  }, []);
+  const handleVideoLoad = () => {
+    setLoadedVideos((prev) => prev + 1);
+    // console.log("loaded videos: ", loadedVideos);
+  };
 
   useEffect(() => {
-    if (loadedVideos === totalVideos) {
+    if (loadedVideos >= 2) {
       setIsLoading(false);
     }
-  }, [loadedVideos, totalVideos]);
+  }, [loadedVideos]);
 
   useGSAP(
     () => {
@@ -133,6 +115,7 @@ const Hero = () => {
                 muted
                 preload="auto"
                 playsInline
+                onLoadedData={handleVideoLoad}  
                 id="next-video"
                 className="size-64 origin-center scale-150 object-cover object-center"
               />
@@ -153,7 +136,8 @@ const Hero = () => {
             autoPlay
             loop
             muted
-            preload="auto"
+            // preload="auto"
+            onLoadedData={handleVideoLoad}
             playsInline
             className="absolute left-0 top-0 size-full object-cover object-center"
           />
