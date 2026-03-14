@@ -1,16 +1,26 @@
 "use client";
 import Button from "./Button";
 
-interface ImageClipBox {
+import Image from "next/image";
+
+interface ImageClipBoxProps {
   src: string;
   clipClass: string;
   alt: string;
+  width?: number;
+  height?: number;
 }
 
-const ImageClipBox = ({ src, clipClass, alt }: ImageClipBox) => {
+const ImageClipBox = ({ src, clipClass, alt, width, height }: ImageClipBoxProps) => {
   return (
     <div className={clipClass}>
-      <img src={src} alt={alt} />
+      <Image 
+        src={src} 
+        alt={alt} 
+        width={width || 1000} 
+        height={height || 1000} 
+        className="w-full h-auto" 
+      />
     </div>
   );
 };
@@ -24,11 +34,15 @@ const Contact = () => {
             clipClass="contact-clip-path-1 relative h-64"
             src="/img/contact-1.webp"
             alt="contact-clip-1"
+            width={1000}
+            height={683}
           />
           <ImageClipBox
             clipClass="contact-clip-path-2 h-64 lg:translate-y-40 translate-y-60 relative"
             src="/img/contact-2.webp"
             alt="contact-clip-2"
+            width={1282}
+            height={814}
           />
         </div>
 
@@ -37,11 +51,15 @@ const Contact = () => {
             clipClass="absolute md:scale-125"
             src="/img/swordman-partial.webp"
             alt="swordman-partial"
+            width={1286}
+            height={1582}
           />
           <ImageClipBox
             clipClass="sword-man-clip-path md:scale-125"
             src="/img/swordman.webp"
             alt="swordman-full"
+            width={1286}
+            height={1582}
           />
         </div>
 
@@ -50,7 +68,7 @@ const Contact = () => {
             Join Zentry
           </p>
           <p className="special-font mt-10 w-full font-family-zentry text-5xl leading-[0.9] md:text-[6rem]">
-            Let's b<b>u</b>ild the <br /> new era of <br /> g<b>a</b>ming t
+            Let&apos;s b<b>u</b>ild the <br /> new era of <br /> g<b>a</b>ming t
             <b>o</b>gether
           </p>
           <Button title="Contact us" containerClass="mt-10 cursor-pointer" />

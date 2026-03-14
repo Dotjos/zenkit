@@ -7,16 +7,16 @@ import { useWindowScroll } from "react-use";
 import gsap from "gsap";
 
 const Navbar = () => {
-  const [isAudioPlaying, setIsAudiPlaying] = useState(false);
+  const [isAudioPlaying, setIsAudioPlaying] = useState(false);
   const [isIndicatorActive, setIsIndicatorActive] = useState(false);
-  const [lastSCrollY, setLastScrollY] = useState(0);
+  const lastScrollYRef = useRef(0);
   const [isNavVisible, setIsNavVisible] = useState(true);
 
   const navContainerRef = useRef<HTMLDivElement>(null);
   const audioElementRef = useRef<HTMLAudioElement>(null);
   const navItems = ["Nexus", "Vault", "Prologue", "About", "Contact"];
   const toggleAudioIndicator = () => {
-    setIsAudiPlaying((prev) => !prev);
+    setIsAudioPlaying((prev) => !prev);
     setIsIndicatorActive((prev) => !prev);
   };
 
@@ -24,17 +24,18 @@ const Navbar = () => {
 
   useEffect(() => {
     if (currentScrollyY === 0) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setIsNavVisible(true);
       navContainerRef.current?.classList.remove("floating-nav");
-    } else if (currentScrollyY > lastSCrollY) {
+    } else if (currentScrollyY > lastScrollYRef.current) {
       setIsNavVisible(false);
       navContainerRef.current?.classList.add("floating-nav");
-    } else if (currentScrollyY < lastSCrollY) {
+    } else if (currentScrollyY < lastScrollYRef.current) {
       setIsNavVisible(true);
       navContainerRef.current?.classList.add("floating-nav");
     }
 
-    setLastScrollY(currentScrollyY);
+    lastScrollYRef.current = currentScrollyY;
   }, [currentScrollyY]);
 
   useEffect(() => {
